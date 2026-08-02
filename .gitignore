@@ -1,0 +1,64 @@
+# Ignore project-specific help file that is not part of the build
+HELP.md
+
+# Java / Maven build artifacts
+target/
+build/
+**/*.class
+**/*.jar
+**/*.war
+
+# Maven wrapper binary (already tracked exceptions may be needed)
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.iws
+*.iml
+*.ipr
+.project
+.classpath
+.settings/
+
+# Eclipse / Spring Tool Suite
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Firebase / Google Cloud credentials and sensitive files
+firebase-*.json
+serviceAccountKey.json
+**/firebase-*.json
+**/serviceAccountKey.json
+**/*.json
+
+# Ignore application environment files that may contain secrets
+.env
+application-secret.properties
+application-dev.properties
+application-prod.properties
+application.*.properties
+
+# Logs and runtime files
+*.log
+logs/
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Keep source-generated build output in subdirectories if necessary
+!**/src/main/**/target/
+!**/src/test/**/target/
+!**/src/main/**/build/
+!**/src/test/**/build/
