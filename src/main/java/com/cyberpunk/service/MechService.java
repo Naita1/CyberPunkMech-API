@@ -17,7 +17,7 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @Service
 public class MechService {
-    private static final String COLLECTION_NAME = "Mechs";
+    private static final String COLLECTION_NAME = "mechs";
     private final Firestore firestore;
 
     public MechService(Firestore firestore) {
@@ -60,21 +60,20 @@ public class MechService {
         getCollection().document(idMech).delete().get();
     }
 
-    private Mech convertToMech(DocumentSnapshot snapshot){
-        String type = snapshot.getString("type");
+    private Mech convertToMech(DocumentSnapshot snapshot) {
+        String model = snapshot.getString("model");
 
-        if(type == null){
-            throw  new IllegalArgumentException("Documento sem campo 'type: " + snapshot.getId());
-
+        if (model == null) {
+            throw new IllegalArgumentException("Documento sem campo 'model': " + snapshot.getId());
         }
 
-        switch (type){
-            case "ATTACK":
+        switch (model) {
+            case "AttackMech":
                 return snapshot.toObject(AttackMech.class);
-            case "DEFENSIVE":
+            case "DefensiveMech":
                 return snapshot.toObject(DefensiveMech.class);
             default:
-                throw new IllegalArgumentException("Tipo de Mech desconhecido " + snapshot.getId());
+                throw new IllegalArgumentException("Tipo de Mech desconhecido: " + snapshot.getId());
         }
     }
 

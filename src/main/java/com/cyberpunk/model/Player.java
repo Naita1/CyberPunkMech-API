@@ -10,14 +10,32 @@ public class Player {
     private String idPlayer;
     private String namePlayer;
     private Integer coins;
+    private Integer wins;
+    private Integer draws;
+    private Integer losses;
     private Timestamp createdAt;
     private List<Mech> garage;
 
     public Player() {
         this.coins = 0;
+        this.wins = 0;
+        this.draws = 0;
+        this.losses = 0;
         this.garage = new ArrayList<>();
     }
 
+    public Integer getMechsCount() {
+        return this.garage != null ? this.garage.size() : 0;
+    }
+
+    public Integer getWins() { return wins; }
+    public void setWins(Integer wins) { this.wins = wins; }
+
+    public Integer getDraws() { return draws; }
+    public void setDraws(Integer draws) { this.draws = draws; }
+
+    public Integer getLosses() { return losses; }
+    public void setLosses(Integer losses) { this.losses = losses; }
     public Timestamp getCreatedAt() {
         return createdAt;
     }
