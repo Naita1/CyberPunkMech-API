@@ -15,7 +15,6 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/players")
-@CrossOrigin(origins = "*")
 @Tag(name = "Players", description = "Player management endpoints")
 public class PlayerController {
 

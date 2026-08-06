@@ -19,7 +19,6 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/mechs")
-@CrossOrigin(origins = "*")
 @Tag(name = "Mechs", description = "Mech management endpoints")
 public class MechController {
 
