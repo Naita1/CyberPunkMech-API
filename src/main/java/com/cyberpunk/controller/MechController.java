@@ -23,61 +23,38 @@ public class MechController {
     }
 
     @PostMapping("/attack")
-    public ResponseEntity<AttackMech> createAttackMech(@RequestBody AttackMech mech) {
-        try{
-            mech.setType("ATTACK"); 
-            mechService.saveMech(mech);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mech);
-        } catch (ExecutionException | InterruptedException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<AttackMech> createAttackMech(@RequestBody AttackMech mech) throws ExecutionException, InterruptedException {
+        mech.setType("ATTACK");
+        mechService.saveMech(mech);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mech);
     }
 
     @PostMapping("/defensive")
-    public ResponseEntity<DefensiveMech> createDefensiveMech(@RequestBody DefensiveMech mech){
-        try{
-            mech.setType("DEFENSIVE");
-            mechService.saveMech(mech);
-            return ResponseEntity.status(HttpStatus.CREATED).body(mech);
-        } catch (ExecutionException | InterruptedException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<DefensiveMech> createDefensiveMech(@RequestBody DefensiveMech mech) throws ExecutionException, InterruptedException {
+        mech.setType("DEFENSIVE");
+        mechService.saveMech(mech);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mech);
     }
 
     @GetMapping("/{idMech}")
-    public ResponseEntity<Mech> getMech(@PathVariable String idMech){
-        try{
-            Mech mech = mechService.getMechById(idMech);
-            if(mech == null){
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(mech);
-        } catch (ExecutionException | InterruptedException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    public ResponseEntity<Mech> getMech(@PathVariable String idMech) throws ExecutionException, InterruptedException {
+        Mech mech = mechService.getMechById(idMech);
+        if (mech == null) {
+            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(mech);
     }
 
     @GetMapping
-    public ResponseEntity<List<Mech>> getMechByPlayer(@RequestParam String playerId){
-        try{
-            List<Mech> mechs = mechService.getMechsByPlayerId(playerId);
-            return ResponseEntity.ok(mechs);
-        } catch (ExecutionException | InterruptedException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<List<Mech>> getMechByPlayer(@RequestParam String playerId) throws ExecutionException, InterruptedException {
+        List<Mech> mechs = mechService.getMechsByPlayerId(playerId);
+        return ResponseEntity.ok(mechs);
     }
 
     @DeleteMapping("{idMech}")
-    public ResponseEntity<Void> deleteMech(@PathVariable String idMech){
-        try{
-            mechService.deleteMech(idMech);
-            return ResponseEntity.noContent().build();
-        }
-        catch (ExecutionException | InterruptedException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Void> deleteMech(@PathVariable String idMech) throws ExecutionException, InterruptedException {
+        mechService.deleteMech(idMech);
+        return ResponseEntity.noContent().build();
     }
-
-
 
 }

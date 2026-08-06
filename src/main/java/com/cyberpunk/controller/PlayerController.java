@@ -20,37 +20,24 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody Player player){
-        try{
-            playerService.savePlayer(player);
-            return ResponseEntity.status(HttpStatus.CREATED).body(player);
-        } catch (ExecutionException | InterruptedException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Player> createPlayer(@RequestBody Player player) throws ExecutionException, InterruptedException {
+        playerService.savePlayer(player);
+        return ResponseEntity.status(HttpStatus.CREATED).body(player);
     }
 
     @GetMapping("/{idPlayer}")
-    public ResponseEntity<Player> getPlayer(@PathVariable String idPlayer){
-        try{
-            Player player = playerService.getPlayerById(idPlayer);
-
-            if (player == null){
-                return ResponseEntity.notFound().build();
-            }
-            return  ResponseEntity.ok(player);
-        } catch (ExecutionException | InterruptedException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    public ResponseEntity<Player> getPlayer(@PathVariable String idPlayer) throws ExecutionException, InterruptedException {
+        Player player = playerService.getPlayerById(idPlayer);
+        if (player == null) {
+            return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(player);
     }
 
     @DeleteMapping("/{idPlayer}")
-    public ResponseEntity<Void> deletePlayer(@PathVariable String idPlayer){
-        try{
-            playerService.deletePlayer(idPlayer);
-            return ResponseEntity.noContent().build();
-        } catch (ExecutionException | InterruptedException e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Void> deletePlayer(@PathVariable String idPlayer) throws ExecutionException, InterruptedException {
+        playerService.deletePlayer(idPlayer);
+        return ResponseEntity.noContent().build();
     }
 
 }
