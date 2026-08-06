@@ -1,21 +1,23 @@
 package com.cyberpunk.model;
 
-public class AttackMech extends Mech{
-    private int heatLevel = 0;
-    private int maxHeat;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    public AttackMech(){
-        super();
-    }
+@Getter
+@Setter
+@NoArgsConstructor
+public class AttackMech extends Mech {
+    private int heatLevel;
+    private int maxHeat;
 
     public AttackMech(String idMech, String playerId, String model, Integer maxHealth,
                       Integer battery, Integer attackPower, Integer maxHeat) {
-        super();
         this.setIdMech(idMech);
         this.setPlayerId(playerId);
         this.setModel(model);
         this.setMaxHealth(maxHealth);
-        this.setCurrentHealth(maxHealth);
+        this.setCurrentHealth(maxHealth == null ? 0 : maxHealth);
         this.setBattery(battery);
         this.setAttackPower(attackPower);
         this.maxHeat = (maxHeat == null) ? 0 : maxHeat;
@@ -23,31 +25,13 @@ public class AttackMech extends Mech{
         this.setType("ATTACK");
     }
 
-    public int getHeatLevel() {
-        return heatLevel;
-    }
-
-    public void setHeatLevel(int heatLevel) {
-        this.heatLevel = heatLevel;
-    }
-
-    public int getMaxHeat() {
-        return maxHeat;
-    }
-
-    public void setMaxHeat(int maxHeat) {
-        this.maxHeat = maxHeat;
-    }
-
-    public Integer shoot(){
-        if(heatLevel >= maxHeat){
+    public Integer shoot() {
+        if (heatLevel >= maxHeat) {
             return 0;
         }
         Integer attackPower = this.getAttackPower();
-        int power = (attackPower == null) ? 0 : attackPower;
-        int damage = power * 2;
+        int damage = (attackPower == null ? 0 : attackPower) * 2;
         heatLevel += 25;
-
         return damage;
     }
 

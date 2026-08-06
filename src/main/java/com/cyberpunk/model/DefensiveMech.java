@@ -1,52 +1,38 @@
 package com.cyberpunk.model;
 
-public class DefensiveMech extends Mech{
-    private Integer shieldArmor;
-    private boolean isShieldActive;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-    public DefensiveMech(){
-        super();
-    }
+@Getter
+@Setter
+@NoArgsConstructor
+public class DefensiveMech extends Mech {
+    private Integer shieldArmor;
+    private boolean shieldActive;
 
     public DefensiveMech(String idMech, String playerId, String model, Integer maxHealth,
                          Integer battery, Integer attackPower, Integer shieldArmor) {
-        super();
         this.setIdMech(idMech);
         this.setPlayerId(playerId);
         this.setModel(model);
         this.setMaxHealth(maxHealth);
-        this.setCurrentHealth(maxHealth);
+        this.setCurrentHealth(maxHealth == null ? 0 : maxHealth);
         this.setBattery(battery);
         this.setAttackPower(attackPower);
         this.shieldArmor = shieldArmor;
-        this.isShieldActive = false;
+        this.shieldActive = false;
         this.setType("DEFENSIVE");
     }
 
-    public Integer getShieldArmor() {
-        return shieldArmor;
-    }
-
-    public void setShieldArmor(Integer shieldArmor) {
-        this.shieldArmor = shieldArmor;
-    }
-
-    public boolean isShieldActive() {
-        return isShieldActive;
-    }
-
-    public void setShieldActive(boolean shieldActive) {
-        isShieldActive = shieldActive;
-    }
-
-    public void toggleShield(){
-        this.setShieldActive(!this.isShieldActive);
+    public void toggleShield() {
+        this.shieldActive = !this.shieldActive;
     }
 
     @Override
     public void takeDamage(Integer damage) {
         int dmg = (damage == null) ? 0 : damage;
-        if (isShieldActive && shieldArmor != null && shieldArmor > 0) {
+        if (shieldActive && shieldArmor != null && shieldArmor > 0) {
             if (dmg <= shieldArmor) {
                 shieldArmor -= dmg;
             } else {
