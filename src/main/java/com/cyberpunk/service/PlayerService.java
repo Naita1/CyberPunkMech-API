@@ -7,6 +7,7 @@ import com.cyberpunk.model.Mech;
 import com.cyberpunk.model.Player;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.WriteBatch;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
@@ -49,12 +50,13 @@ public class PlayerService {
     }
 
     public void deletePlayer(String idPlayer) throws ExecutionException, InterruptedException {
-    List<Mech> mechs = mechService.getMechsByPlayerId(idPlayer);
-    for (Mech mech : mechs) {
-        mechService.deleteMech(mech.getIdMech());
+        List<Mech> mechs = mechService.getMechsByPlayerId(idPlayer);
+
+        WriteBatch batch = firestore.batch();
+        mechs.forEach(mech -> batch.delete(firestore.collection("mechs").document(mech.getIdMech())));
+        batch.delete(firestore.collection(COLLECTION_NAME).document(idPlayer));
+        batch.commit().get();
     }
-    firestore.collection(COLLECTION_NAME).document(idPlayer).delete().get();
-}
 
 
 }

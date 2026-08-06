@@ -39,6 +39,9 @@ A CyberpunkMech API é um backend em Spring Boot integrado ao Google Cloud Fires
 - [x] **Persistência Firestore:** Integração assíncrona com Firebase usando discriminador `"type"` para recriar instâncias corretas.
 - [x] **Garagem Dinâmica:** A consulta de um Jogador traz automaticamente a lista completa de Mechs vinculados ao seu `playerId`.
 - [x] **Endpoints REST:** Controladores completos para rotas de Player e Mech com suporte a CORS.
+- [x] **DTOs com Validação:** Requests validados com Bean Validation (`@NotBlank`, `@NotNull`, `@Min`).
+- [x] **Testes Unitários:** Cobertura dos models e services com JUnit 5 e Mockito.
+- [x] **Documentação OpenAPI:** Swagger UI disponível em `/swagger-ui/index.html`.
 
 ---
 
@@ -53,7 +56,7 @@ A CyberpunkMech API é um backend em Spring Boot integrado ao Google Cloud Fires
 
 ### Pré-requisitos
 - [JDK 23](https://www.oracle.com/java/technologies/downloads/) instalado.
-- Credenciais da conta de serviço do Firebase configuradas.
+- Conta de serviço do Firebase com Firestore habilitado.
 
 ### 1. Clonar o Repositório
 ```bash
@@ -61,10 +64,30 @@ git clone https://github.com/Naita1/Cyber-Punk-Mech.git
 cd Cyber-Punk-Mech
 ```
 
-### 2. Rodar a Aplicação
+### 2. Configurar as Credenciais do Firebase
+
+Exporte o conteúdo do JSON da conta de serviço como variável de ambiente:
+
+```bash
+# Linux / macOS
+export FIREBASE_CREDENTIALS=$(cat /caminho/para/firebase-key.json)
+```
+
+```powershell
+# Windows PowerShell
+$env:FIREBASE_CREDENTIALS = Get-Content "caminho\para\firebase-key.json" -Raw
+```
+
+### 3. Rodar a Aplicação
 
 ```bash
 ./mvnw spring-boot:run
+```
+
+### 4. Acessar a documentação
+
+```
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ---
@@ -137,6 +160,9 @@ CyberpunkMech API is a Spring Boot backend integrated with Google Cloud Firestor
 * [x] **Firestore Persistence:** Asynchronous Firebase integration using a `"type"` discriminator field to rebuild exact instances.
 * [x] **Dynamic Garage:** Fetching a Player automatically populates their full Mech garage based on their `playerId`.
 * [x] **REST Endpoints:** Full REST Controllers for Player and Mech routes with CORS support.
+* [x] **DTOs with Validation:** Requests validated with Bean Validation (`@NotBlank`, `@NotNull`, `@Min`).
+* [x] **Unit Tests:** Model and service coverage with JUnit 5 and Mockito.
+* [x] **OpenAPI Documentation:** Swagger UI available at `/swagger-ui/index.html`.
 
 ---
 
@@ -153,7 +179,7 @@ CyberpunkMech API is a Spring Boot backend integrated with Google Cloud Firestor
 ### Prerequisites
 
 * [JDK 23](https://www.oracle.com/java/technologies/downloads/) installed.
-* Firebase Service Account credentials configured.
+* Firebase project with Firestore enabled and a Service Account key.
 
 ### 1. Clone the repository
 
@@ -162,10 +188,30 @@ git clone https://github.com/Naita1/Cyber-Punk-Mech.git
 cd Cyber-Punk-Mech
 ```
 
-### 2. Run Application
+### 2. Configure Firebase credentials
+
+Export the Service Account JSON content as an environment variable:
+
+```bash
+# Linux / macOS
+export FIREBASE_CREDENTIALS=$(cat /path/to/firebase-key.json)
+```
+
+```powershell
+# Windows PowerShell
+$env:FIREBASE_CREDENTIALS = Get-Content "path\to\firebase-key.json" -Raw
+```
+
+### 3. Run Application
 
 ```bash
 ./mvnw spring-boot:run
+```
+
+### 4. Access the documentation
+
+```
+http://localhost:8080/swagger-ui/index.html
 ```
 
 ---
