@@ -1,7 +1,9 @@
 package com.cyberpunk.controller;
 
-import com.cyberpunk.model.Player;
+import com.cyberpunk.dto.PlayerRequest;
+import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.service.PlayerService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,14 +22,13 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody Player player) throws ExecutionException, InterruptedException {
-        playerService.savePlayer(player);
-        return ResponseEntity.status(HttpStatus.CREATED).body(player);
+    public ResponseEntity<PlayerResponse> createPlayer(@Valid @RequestBody PlayerRequest request) throws ExecutionException, InterruptedException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(playerService.savePlayer(request));
     }
 
     @GetMapping("/{idPlayer}")
-    public ResponseEntity<Player> getPlayer(@PathVariable String idPlayer) throws ExecutionException, InterruptedException {
-        Player player = playerService.getPlayerById(idPlayer);
+    public ResponseEntity<PlayerResponse> getPlayer(@PathVariable String idPlayer) throws ExecutionException, InterruptedException {
+        PlayerResponse player = playerService.getPlayerById(idPlayer);
         if (player == null) {
             return ResponseEntity.notFound().build();
         }
@@ -39,5 +40,4 @@ public class PlayerController {
         playerService.deletePlayer(idPlayer);
         return ResponseEntity.noContent().build();
     }
-
 }

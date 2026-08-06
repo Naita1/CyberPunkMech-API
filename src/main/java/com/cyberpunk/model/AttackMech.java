@@ -1,8 +1,8 @@
 package com.cyberpunk.model;
 
 public class AttackMech extends Mech{
-    private Integer heatLevel;
-    private Integer maxHeat;
+    private int heatLevel = 0;
+    private int maxHeat;
 
     public AttackMech(){
         super();
@@ -18,24 +18,24 @@ public class AttackMech extends Mech{
         this.setCurrentHealth(maxHealth);
         this.setBattery(battery);
         this.setAttackPower(attackPower);
-        this.maxHeat = maxHeat;
+        this.maxHeat = (maxHeat == null) ? 0 : maxHeat;
         this.heatLevel = 0;
         this.setType("ATTACK");
     }
 
-    public Integer getHeatLevel() {
+    public int getHeatLevel() {
         return heatLevel;
     }
 
-    public void setHeatLevel(Integer heatLevel) {
+    public void setHeatLevel(int heatLevel) {
         this.heatLevel = heatLevel;
     }
 
-    public Integer getMaxHeat() {
+    public int getMaxHeat() {
         return maxHeat;
     }
 
-    public void setMaxHeat(Integer maxHeat) {
+    public void setMaxHeat(int maxHeat) {
         this.maxHeat = maxHeat;
     }
 
@@ -43,7 +43,9 @@ public class AttackMech extends Mech{
         if(heatLevel >= maxHeat){
             return 0;
         }
-        int damage = this.getAttackPower() * 2;
+        Integer attackPower = this.getAttackPower();
+        int power = (attackPower == null) ? 0 : attackPower;
+        int damage = power * 2;
         heatLevel += 25;
 
         return damage;
@@ -52,6 +54,4 @@ public class AttackMech extends Mech{
     public void coolDown() {
         this.heatLevel = Math.max(0, this.heatLevel - 30);
     }
-
-
 }

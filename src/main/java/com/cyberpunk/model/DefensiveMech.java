@@ -38,22 +38,24 @@ public class DefensiveMech extends Mech{
     public void setShieldActive(boolean shieldActive) {
         isShieldActive = shieldActive;
     }
+
     public void toggleShield(){
         this.setShieldActive(!this.isShieldActive);
     }
 
     @Override
     public void takeDamage(Integer damage) {
+        int dmg = (damage == null) ? 0 : damage;
         if (isShieldActive && shieldArmor != null && shieldArmor > 0) {
-            if (damage <= shieldArmor) {
-                shieldArmor -= damage;
+            if (dmg <= shieldArmor) {
+                shieldArmor -= dmg;
             } else {
-                int rest = damage - shieldArmor;
+                int rest = dmg - shieldArmor;
                 shieldArmor = 0;
                 super.takeDamage(rest);
             }
         } else {
-            super.takeDamage(damage); 
+            super.takeDamage(dmg);
         }
     }
 }

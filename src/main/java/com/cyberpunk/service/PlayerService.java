@@ -1,9 +1,10 @@
 package com.cyberpunk.service;
 
 import java.util.List;
+import com.cyberpunk.dto.PlayerRequest;
+import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.model.Mech;
 import com.cyberpunk.model.Player;
-import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import org.springframework.stereotype.Service;
@@ -22,28 +23,29 @@ public class PlayerService {
         this.mechService = mechService;
     }
 
-    public void savePlayer(Player player) throws ExecutionException, InterruptedException {
-        DocumentSnapshot snapshot = firestore.collection(COLLECTION_NAME)
-                .document(player.getIdPlayer())
-                .get()
-                .get();
+    public PlayerResponse savePlayer(PlayerRequest request) throws ExecutionException, InterruptedException {
+        Player player = new Player();
+        player.setIdPlayer(request.idPlayer());
+        player.setNamePlayer(request.namePlayer());
+        if (request.coins() != null) player.setCoins(request.coins());
 
         firestore.collection(COLLECTION_NAME).document(player.getIdPlayer()).set(player).get();
+        return PlayerResponse.from(player);
     }
 
-    public Player getPlayerById(String idPlayer) throws ExecutionException, InterruptedException {
+    public PlayerResponse getPlayerById(String idPlayer) throws ExecutionException, InterruptedException {
         DocumentSnapshot snapshot = firestore.collection(COLLECTION_NAME).document(idPlayer).get().get();
 
-        if(!snapshot.exists()){
+        if (!snapshot.exists()) {
             return null;
         }
 
         Player player = snapshot.toObject(Player.class);
-        if(player != null){
+        if (player != null) {
             player.setGarage(mechService.getMechsByPlayerId(player.getIdPlayer()));
         }
 
-        return player;
+        return player != null ? PlayerResponse.from(player) : null;
     }
 
     public void deletePlayer(String idPlayer) throws ExecutionException, InterruptedException {

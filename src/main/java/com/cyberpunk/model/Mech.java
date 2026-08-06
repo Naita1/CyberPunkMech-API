@@ -5,7 +5,7 @@ public abstract class Mech {
     private String playerId;
     private String model;
     private Integer maxHealth;
-    private Integer currentHealth;
+    private int currentHealth;
     private Integer battery;
     private Integer attackPower;
     private String type;
@@ -53,11 +53,11 @@ public abstract class Mech {
         this.maxHealth = maxHealth;
     }
 
-    public Integer getCurrentHealth() {
+    public int getCurrentHealth() {
         return currentHealth;
     }
 
-    public void setCurrentHealth(Integer currentHealth) {
+    public void setCurrentHealth(int currentHealth) {
         this.currentHealth = currentHealth;
     }
 
@@ -78,7 +78,8 @@ public abstract class Mech {
     }
 
     public void takeDamage(Integer damage){
-        this.currentHealth = Math.max(0, this.currentHealth - damage);
+        int dmg = (damage == null) ? 0 : damage;
+        this.setCurrentHealth(Math.max(0, this.getCurrentHealth() - dmg));
     }
 
     public boolean isOperational(){

@@ -1,0 +1,28 @@
+package com.cyberpunk.dto;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public record DefensiveMechRequest(
+        @NotBlank(message = "O ID do mech é obrigatório")
+        String idMech,
+
+        @NotBlank(message = "O ID do jogador é obrigatório")
+        String playerId,
+
+        @NotBlank(message = "O modelo é obrigatório")
+        String model,
+
+        @NotNull(message = "A vida máxima é obrigatória")
+        @Min(value = 1, message = "A vida máxima deve ser maior que zero")
+        Integer maxHealth,
+
+        @NotNull(message = "A bateria é obrigatória")
+        @Min(value = 0, message = "A bateria não pode ser negativa")
+        Integer battery,
+
+        @NotNull(message = "A armadura do escudo é obrigatória")
+        @Min(value = 1, message = "A armadura do escudo deve ser maior que zero")
+        Integer shieldArmor
+) {}

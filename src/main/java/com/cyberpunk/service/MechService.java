@@ -1,5 +1,9 @@
 package com.cyberpunk.service;
 
+import com.cyberpunk.dto.AttackMechRequest;
+import com.cyberpunk.dto.AttackMechResponse;
+import com.cyberpunk.dto.DefensiveMechRequest;
+import com.cyberpunk.dto.DefensiveMechResponse;
 import com.cyberpunk.model.AttackMech;
 import com.cyberpunk.model.DefensiveMech;
 import com.cyberpunk.model.Mech;
@@ -28,8 +32,22 @@ public class MechService {
         return firestore.collection(COLLECTION_NAME);
     }
 
-    public void saveMech(Mech mech) throws ExecutionException, InterruptedException {
+    public AttackMechResponse saveAttackMech(AttackMechRequest request) throws ExecutionException, InterruptedException {
+        AttackMech mech = new AttackMech(
+                request.idMech(), request.playerId(), request.model(),
+                request.maxHealth(), request.battery(), request.attackPower(), request.maxHeat()
+        );
         getCollection().document(mech.getIdMech()).set(mech).get();
+        return AttackMechResponse.from(mech);
+    }
+
+    public DefensiveMechResponse saveDefensiveMech(DefensiveMechRequest request) throws ExecutionException, InterruptedException {
+        DefensiveMech mech = new DefensiveMech(
+                request.idMech(), request.playerId(), request.model(),
+                request.maxHealth(), request.battery(), 0, request.shieldArmor()
+        );
+        getCollection().document(mech.getIdMech()).set(mech).get();
+        return DefensiveMechResponse.from(mech);
     }
 
     public Mech getMechById(String idMech) throws ExecutionException, InterruptedException {
