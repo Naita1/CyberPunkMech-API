@@ -17,13 +17,15 @@ public class Player {
     private List<Mech> garage;
 
     public Player() {
-        this.coins = 0;
+        this.coins = 50;
         this.wins = 0;
         this.draws = 0;
         this.losses = 0;
+        this.createdAt = Timestamp.now();
         this.garage = new ArrayList<>();
     }
 
+    @Exclude
     public Integer getMechsCount() {
         return this.garage != null ? this.garage.size() : 0;
     }

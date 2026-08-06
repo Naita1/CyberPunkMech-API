@@ -1,6 +1,9 @@
 package com.cyberpunk.service;
 
+import java.util.List;
+import com.cyberpunk.model.Mech;
 import com.cyberpunk.model.Player;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
 import org.springframework.stereotype.Service;
@@ -20,6 +23,11 @@ public class PlayerService {
     }
 
     public void savePlayer(Player player) throws ExecutionException, InterruptedException {
+        DocumentSnapshot snapshot = firestore.collection(COLLECTION_NAME)
+                .document(player.getIdPlayer())
+                .get()
+                .get();
+
         firestore.collection(COLLECTION_NAME).document(player.getIdPlayer()).set(player).get();
     }
 
@@ -39,8 +47,12 @@ public class PlayerService {
     }
 
     public void deletePlayer(String idPlayer) throws ExecutionException, InterruptedException {
-        firestore.collection(COLLECTION_NAME).document(idPlayer).delete().get();
+    List<Mech> mechs = mechService.getMechsByPlayerId(idPlayer);
+    for (Mech mech : mechs) {
+        mechService.deleteMech(mech.getIdMech());
     }
+    firestore.collection(COLLECTION_NAME).document(idPlayer).delete().get();
+}
 
 
 }

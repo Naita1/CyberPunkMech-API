@@ -25,6 +25,7 @@ public class MechController {
     @PostMapping("/attack")
     public ResponseEntity<AttackMech> createAttackMech(@RequestBody AttackMech mech) {
         try{
+            mech.setType("ATTACK"); 
             mechService.saveMech(mech);
             return ResponseEntity.status(HttpStatus.CREATED).body(mech);
         } catch (ExecutionException | InterruptedException e){
@@ -35,6 +36,7 @@ public class MechController {
     @PostMapping("/defensive")
     public ResponseEntity<DefensiveMech> createDefensiveMech(@RequestBody DefensiveMech mech){
         try{
+            mech.setType("DEFENSIVE");
             mechService.saveMech(mech);
             return ResponseEntity.status(HttpStatus.CREATED).body(mech);
         } catch (ExecutionException | InterruptedException e){

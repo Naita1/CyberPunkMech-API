@@ -61,16 +61,16 @@ public class MechService {
     }
 
     private Mech convertToMech(DocumentSnapshot snapshot) {
-        String model = snapshot.getString("model");
+        String type = snapshot.getString("type");
 
-        if (model == null) {
+        if (type == null) {
             throw new IllegalArgumentException("Documento sem campo 'model': " + snapshot.getId());
         }
 
-        switch (model) {
-            case "AttackMech":
+        switch (type) {
+            case "ATTACK":
                 return snapshot.toObject(AttackMech.class);
-            case "DefensiveMech":
+            case "DEFENSIVE":
                 return snapshot.toObject(DefensiveMech.class);
             default:
                 throw new IllegalArgumentException("Tipo de Mech desconhecido: " + snapshot.getId());
