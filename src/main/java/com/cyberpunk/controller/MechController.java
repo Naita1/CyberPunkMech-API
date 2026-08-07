@@ -31,16 +31,19 @@ public class MechController {
     @Operation(summary = "Register an Attack Mech")
     @ApiResponse(responseCode = "201", description = "Attack Mech created successfully")
     @PostMapping("/attack")
-    public ResponseEntity<AttackMechResponse> createAttackMech(@Valid @RequestBody AttackMechRequest request) throws ExecutionException, InterruptedException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(mechService.saveAttackMech(request));
+    public ResponseEntity<AttackMechResponse> createAttackMech(@Valid @RequestBody AttackMechRequest request,
+                                                               @RequestAttribute("authPlayerId") String authPlayerId) throws ExecutionException, InterruptedException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mechService.saveAttackMech(request, authPlayerId));
     }
 
     @Operation(summary = "Register a Defensive Mech")
     @ApiResponse(responseCode = "201", description = "Defensive Mech created successfully")
     @PostMapping("/defensive")
-    public ResponseEntity<DefensiveMechResponse> createDefensiveMech(@Valid @RequestBody DefensiveMechRequest request) throws ExecutionException, InterruptedException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(mechService.saveDefensiveMech(request));
+    public ResponseEntity<DefensiveMechResponse> createDefensiveMech(@Valid @RequestBody DefensiveMechRequest request,
+                                                                     @RequestAttribute("authPlayerId") String authPlayerId) throws ExecutionException, InterruptedException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(mechService.saveDefensiveMech(request, authPlayerId));
     }
+
 
     @Operation(summary = "Get a Mech by ID")
     @ApiResponse(responseCode = "200", description = "Mech found")
@@ -60,9 +63,11 @@ public class MechController {
     @Operation(summary = "Delete a Mech by ID")
     @ApiResponse(responseCode = "204", description = "Mech deleted successfully")
     @ApiResponse(responseCode = "404", description = "Mech not found")
+    @ApiResponse(responseCode = "403", description = "Not allowed to delete another player's mech")
     @DeleteMapping("/{idMech}")
-    public ResponseEntity<Void> deleteMech(@PathVariable String idMech) throws ExecutionException, InterruptedException {
-        mechService.deleteMech(idMech);
+    public ResponseEntity<Void> deleteMech(@PathVariable String idMech,
+                                           @RequestAttribute("authPlayerId") String authPlayerId) throws ExecutionException, InterruptedException {
+        mechService.deleteMech(idMech, authPlayerId);
         return ResponseEntity.noContent().build();
     }
 }

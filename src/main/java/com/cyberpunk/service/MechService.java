@@ -10,7 +10,9 @@ import com.cyberpunk.model.DefensiveMech;
 import com.cyberpunk.model.Mech;
 import com.cyberpunk.repository.MechRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,18 +28,18 @@ public class MechService {
         this.mechRepository = mechRepository;
     }
 
-    public AttackMechResponse saveAttackMech(AttackMechRequest request) throws ExecutionException, InterruptedException {
+    public AttackMechResponse saveAttackMech(AttackMechRequest request, String playerId) throws ExecutionException, InterruptedException {
         AttackMech mech = new AttackMech(
-                UUID.randomUUID().toString(), request.playerId(), request.model(),
+                UUID.randomUUID().toString(), playerId, request.model(),
                 request.maxHealth(), request.battery(), request.attackPower(), request.maxHeat()
         );
         mechRepository.save(mech);
         return AttackMechResponse.from(mech);
     }
 
-    public DefensiveMechResponse saveDefensiveMech(DefensiveMechRequest request) throws ExecutionException, InterruptedException {
+    public DefensiveMechResponse saveDefensiveMech(DefensiveMechRequest request, String playerId) throws ExecutionException, InterruptedException {
         DefensiveMech mech = new DefensiveMech(
-                UUID.randomUUID().toString(), request.playerId(), request.model(),
+                UUID.randomUUID().toString(), playerId, request.model(),
                 request.maxHealth(), request.battery(), request.attackPower(), request.shieldArmor()
         );
         mechRepository.save(mech);
@@ -53,10 +55,14 @@ public class MechService {
         return mechRepository.findByPlayerId(idPlayer);
     }
 
-    public void deleteMech(String idMech) throws ExecutionException, InterruptedException {
-        if (!mechRepository.existsById(idMech)) {
-            throw new MechNotFoundException(idMech);
+    public void deleteMech(String idMech, String authPlayerId) throws ExecutionException, InterruptedException {
+        Mech mech = mechRepository.findById(idMech)
+                .orElseThrow(() -> new MechNotFoundException(idMech));
+
+        if (!mech.getPlayerId().equals(authPlayerId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Você não pode remover um mech de outro piloto.");
         }
+
         mechRepository.deleteById(idMech);
     }
 
