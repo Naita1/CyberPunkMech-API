@@ -22,7 +22,11 @@ public class AttackMech extends Mech {
         this.setAttackPower(attackPower);
         this.maxHeat = (maxHeat == null) ? 0 : maxHeat;
         this.heatLevel = 0;
-        this.setType("ATTACK");
+    }
+
+    @Override
+    public String getType(){
+        return "ATTACK";
     }
 
     @Override

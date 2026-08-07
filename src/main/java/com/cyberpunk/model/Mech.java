@@ -15,7 +15,8 @@ public abstract class Mech {
     private int currentHealth;
     private Integer battery;
     private Integer attackPower;
-    private String type;
+
+    public abstract String getType();
 
     public abstract int attack();
 

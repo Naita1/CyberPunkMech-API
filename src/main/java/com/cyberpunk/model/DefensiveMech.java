@@ -22,7 +22,11 @@ public class DefensiveMech extends Mech {
         this.setAttackPower(attackPower);
         this.shieldArmor = shieldArmor;
         this.shieldActive = false;
-        this.setType("DEFENSIVE");
+    }
+
+    @Override
+    public String getType(){
+        return "DEFENSIVE";
     }
 
     @Override
