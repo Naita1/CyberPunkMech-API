@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -83,6 +84,18 @@ public class GlobalExceptionHandler {
                         "Validation Error",
                         "Um ou mais campos são inválidos.",
                         details
+                )
+        );
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ErrorResponse> handleResponseStatusException(ResponseStatusException e) {
+        log.warn("Erro de requisição: {}", e.getMessage());
+        return ResponseEntity.status(e.getStatusCode()).body(
+                new ErrorResponse(
+                        e.getStatusCode().value(),
+                        e.getStatusCode().toString(),
+                        e.getReason()
                 )
         );
     }
