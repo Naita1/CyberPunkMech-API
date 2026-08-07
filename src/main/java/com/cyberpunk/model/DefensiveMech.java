@@ -25,6 +25,11 @@ public class DefensiveMech extends Mech {
         this.setType("DEFENSIVE");
     }
 
+    @Override
+    public int attack() {
+        return getAttackPower() == null ? 0 : getAttackPower();
+    }
+
     public void toggleShield() {
         this.shieldActive = !this.shieldActive;
     }

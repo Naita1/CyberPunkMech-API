@@ -25,12 +25,12 @@ public class AttackMech extends Mech {
         this.setType("ATTACK");
     }
 
-    public Integer shoot() {
+    @Override
+    public int attack() {
         if (heatLevel >= maxHeat) {
             return 0;
         }
-        Integer attackPower = this.getAttackPower();
-        int damage = (attackPower == null ? 0 : attackPower) * 2;
+        int damage = (getAttackPower() == null ? 0 : getAttackPower()) * 2;
         heatLevel += 25;
         return damage;
     }

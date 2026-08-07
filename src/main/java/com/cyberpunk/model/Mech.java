@@ -17,6 +17,8 @@ public abstract class Mech {
     private Integer attackPower;
     private String type;
 
+    public abstract int attack();
+
     public void takeDamage(Integer damage) {
         int dmg = (damage == null) ? 0 : damage;
         this.currentHealth = Math.max(0, this.currentHealth - dmg);

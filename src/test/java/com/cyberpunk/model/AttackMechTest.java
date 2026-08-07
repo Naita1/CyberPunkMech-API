@@ -15,25 +15,25 @@ class AttackMechTest {
     }
 
     @Test
-    void shoot_shouldReturnDoubleDamageAndIncreaseHeat() {
-        int damage = mech.shoot();
+    void attack_shouldReturnDoubleDamageAndIncreaseHeat() {
+        int damage = mech.attack();
         assertEquals(40, damage);
         assertEquals(25, mech.getHeatLevel());
     }
 
     @Test
-    void shoot_whenOverheated_shouldReturnZero() {
+    void attack_whenOverheated_shouldReturnZero() {
         mech.setHeatLevel(100);
-        assertEquals(0, mech.shoot());
+        assertEquals(0, mech.attack());
     }
 
     @Test
-    void shoot_whenHeatReachesMax_shouldBlockNextShot() {
-        mech.shoot();
-        mech.shoot();
-        mech.shoot();
-        mech.shoot();
-        assertEquals(0, mech.shoot());
+    void attack_whenHeatReachesMax_shouldBlockNextAttack() {
+        mech.attack();
+        mech.attack();
+        mech.attack();
+        mech.attack();
+        assertEquals(0, mech.attack());
     }
 
     @Test

@@ -15,6 +15,18 @@ class DefensiveMechTest {
     }
 
     @Test
+    void attack_shouldReturnBaseAttackPower() {
+        mech = new DefensiveMech("mech-02", "player-01", "Aegis-Prime", 150, 70, 15, 50);
+        assertEquals(15, mech.attack());
+    }
+
+    @Test
+    void attack_withNullAttackPower_shouldReturnZero() {
+        mech = new DefensiveMech("mech-02", "player-01", "Aegis-Prime", 150, 70, null, 50);
+        assertEquals(0, mech.attack());
+    }
+
+    @Test
     void toggleShield_shouldActivateShield() {
         mech.toggleShield();
         assertTrue(mech.isShieldActive());

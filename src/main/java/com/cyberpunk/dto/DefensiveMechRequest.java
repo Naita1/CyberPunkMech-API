@@ -22,6 +22,10 @@ public record DefensiveMechRequest(
         @Min(value = 0, message = "A bateria não pode ser negativa")
         Integer battery,
 
+        @NotNull(message = "O poder de ataque é obrigatório")
+        @Min(value = 1, message = "O poder de ataque deve ser maior que zero")
+        Integer attackPower,
+
         @NotNull(message = "A armadura do escudo é obrigatória")
         @Min(value = 1, message = "A armadura do escudo deve ser maior que zero")
         Integer shieldArmor

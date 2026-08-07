@@ -25,8 +25,10 @@ class PlayerServiceTest {
     @Mock private MechService mechService;
     @Mock private CollectionReference collectionReference;
     @Mock private DocumentReference documentReference;
+    @Mock private WriteBatch writeBatch;
     @Mock private ApiFuture<WriteResult> writeResultFuture;
     @Mock private ApiFuture<DocumentSnapshot> snapshotFuture;
+    @Mock private ApiFuture<List<WriteResult>> batchFuture;
     @Mock private DocumentSnapshot documentSnapshot;
 
     @InjectMocks
@@ -95,12 +97,13 @@ class PlayerServiceTest {
     @Test
     void deletePlayer_shouldDeleteAllMechsBeforePlayer() throws Exception {
         when(mechService.getMechsByPlayerId("player-01")).thenReturn(List.of());
-        doReturn(writeResultFuture).when(documentReference).delete();
-        when(writeResultFuture.get()).thenReturn(mock(WriteResult.class));
+        when(firestore.batch()).thenReturn(writeBatch);
+        doReturn(batchFuture).when(writeBatch).commit();
+        when(batchFuture.get()).thenReturn(List.of());
 
         playerService.deletePlayer("player-01");
 
         verify(mechService).getMechsByPlayerId("player-01");
-        verify(documentReference).delete();
+        verify(writeBatch).commit();
     }
 }

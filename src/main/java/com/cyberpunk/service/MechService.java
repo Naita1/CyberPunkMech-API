@@ -44,7 +44,7 @@ public class MechService {
     public DefensiveMechResponse saveDefensiveMech(DefensiveMechRequest request) throws ExecutionException, InterruptedException {
         DefensiveMech mech = new DefensiveMech(
                 request.idMech(), request.playerId(), request.model(),
-                request.maxHealth(), request.battery(), 0, request.shieldArmor()
+                request.maxHealth(), request.battery(), request.attackPower(), request.shieldArmor()
         );
         getCollection().document(mech.getIdMech()).set(mech).get();
         return DefensiveMechResponse.from(mech);

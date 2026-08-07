@@ -62,7 +62,7 @@ class MechServiceTest {
         doReturn(writeResultFuture).when(documentReference).set(any(DefensiveMech.class));
         when(writeResultFuture.get()).thenReturn(mock(WriteResult.class));
 
-        DefensiveMechRequest request = new DefensiveMechRequest("mech-02", "player-01", "Aegis", 150, 70, 50);
+        DefensiveMechRequest request = new DefensiveMechRequest("mech-02", "player-01", "Aegis", 150, 70, 10, 50);
         DefensiveMechResponse response = mechService.saveDefensiveMech(request);
 
         assertEquals("mech-02", response.idMech());
