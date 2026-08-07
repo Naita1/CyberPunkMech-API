@@ -102,4 +102,4 @@ class MechServiceTest {
 
         verify(mechRepository).deleteById("mech-01");
     }
-}k,
+}

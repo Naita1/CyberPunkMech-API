@@ -1,6 +1,5 @@
 package com.cyberpunk.dto;
 
-import com.cyberpunk.model.Mech;
 import com.cyberpunk.model.Player;
 
 import java.util.List;
@@ -12,7 +11,7 @@ public record PlayerResponse(
         Integer wins,
         Integer draws,
         Integer losses,
-        List<Mech> garage
+        List<MechSummaryResponse> garage
 ) {
     public static PlayerResponse from(Player player) {
         return new PlayerResponse(
@@ -22,7 +21,9 @@ public record PlayerResponse(
                 player.getWins(),
                 player.getDraws(),
                 player.getLosses(),
-                player.getGarage()
+                player.getGarage().stream()
+                        .map(MechSummaryResponse::from)
+                        .toList()
         );
     }
 }
