@@ -14,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,11 +35,11 @@ class MechServiceTest {
 
     @Test
     void saveAttackMech_shouldReturnCorrectResponse() throws Exception {
-        AttackMechRequest request = new AttackMechRequest("mech-01", "player-01", "Viper-X", 100, 80, 20, 100);
+        AttackMechRequest request = new AttackMechRequest("Viper-X", 100, 80, 20, 100);
 
-        AttackMechResponse response = mechService.saveAttackMech(request);
+        AttackMechResponse response = mechService.saveAttackMech(request, "player-01");
 
-        assertEquals("mech-01", response.idMech());
+        assertNotNull(response.idMech());
         assertEquals("player-01", response.playerId());
         assertEquals("ATTACK", response.type());
         assertEquals(100, response.currentHealth());
@@ -47,11 +49,12 @@ class MechServiceTest {
 
     @Test
     void saveDefensiveMech_shouldReturnCorrectResponse() throws Exception {
-        DefensiveMechRequest request = new DefensiveMechRequest("mech-02", "player-01", "Aegis", 150, 70, 10, 50);
+        DefensiveMechRequest request = new DefensiveMechRequest("Aegis", 150, 70, 10, 50);
 
-        DefensiveMechResponse response = mechService.saveDefensiveMech(request);
+        DefensiveMechResponse response = mechService.saveDefensiveMech(request, "player-01");
 
-        assertEquals("mech-02", response.idMech());
+        assertNotNull(response.idMech());
+        assertEquals("player-01", response.playerId());
         assertEquals("DEFENSIVE", response.type());
         assertEquals(50, response.shieldArmor());
         assertFalse(response.shieldActive());
@@ -88,17 +91,30 @@ class MechServiceTest {
 
     @Test
     void deleteMech_whenNotFound_shouldThrowMechNotFoundException() throws Exception {
-        when(mechRepository.existsById("mech-inexistente")).thenReturn(false);
+        when(mechRepository.findById("mech-inexistente")).thenReturn(Optional.empty());
 
-        assertThrows(MechNotFoundException.class, () -> mechService.deleteMech("mech-inexistente"));
+        assertThrows(MechNotFoundException.class, () -> mechService.deleteMech("mech-inexistente", "player-01"));
         verify(mechRepository, never()).deleteById(anyString());
     }
 
     @Test
-    void deleteMech_whenFound_shouldDelete() throws Exception {
-        when(mechRepository.existsById("mech-01")).thenReturn(true);
+    void deleteMech_whenNotOwner_shouldThrowForbidden() throws Exception {
+        AttackMech mech = new AttackMech("mech-01", "player-01", "Viper-X", 100, 80, 20, 100);
+        when(mechRepository.findById("mech-01")).thenReturn(Optional.of(mech));
 
-        mechService.deleteMech("mech-01");
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> mechService.deleteMech("mech-01", "player-02"));
+
+        assertEquals(HttpStatus.FORBIDDEN, ex.getStatusCode());
+        verify(mechRepository, never()).deleteById(anyString());
+    }
+
+    @Test
+    void deleteMech_whenOwner_shouldDelete() throws Exception {
+        AttackMech mech = new AttackMech("mech-01", "player-01", "Viper-X", 100, 80, 20, 100);
+        when(mechRepository.findById("mech-01")).thenReturn(Optional.of(mech));
+
+        mechService.deleteMech("mech-01", "player-01");
 
         verify(mechRepository).deleteById("mech-01");
     }
