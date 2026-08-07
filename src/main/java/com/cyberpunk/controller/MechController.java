@@ -59,6 +59,7 @@ public class MechController {
 
     @Operation(summary = "Delete a Mech by ID")
     @ApiResponse(responseCode = "204", description = "Mech deleted successfully")
+    @ApiResponse(responseCode = "404", description = "Mech not found")
     @DeleteMapping("/{idMech}")
     public ResponseEntity<Void> deleteMech(@PathVariable String idMech) throws ExecutionException, InterruptedException {
         mechService.deleteMech(idMech);

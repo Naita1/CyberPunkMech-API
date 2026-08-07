@@ -3,6 +3,7 @@ package com.cyberpunk.service;
 import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.exception.PlayerNotFoundException;
+import com.cyberpunk.model.Mech;
 import com.cyberpunk.model.Player;
 import com.cyberpunk.repository.MechRepository;
 import com.cyberpunk.repository.PlayerRepository;
@@ -46,7 +47,7 @@ public class PlayerService {
 
         mechRepository.deleteAllById(mechRepository.findByPlayerId(idPlayer)
                 .stream()
-                .map(com.cyberpunk.model.Mech::getIdMech)
+                .map(Mech::getIdMech)
                 .toList());
         playerRepository.deleteById(idPlayer);
     }
