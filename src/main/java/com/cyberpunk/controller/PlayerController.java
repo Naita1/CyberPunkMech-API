@@ -36,11 +36,7 @@ public class PlayerController {
     @ApiResponse(responseCode = "404", description = "Player not found")
     @GetMapping("/{idPlayer}")
     public ResponseEntity<PlayerResponse> getPlayer(@PathVariable String idPlayer) throws ExecutionException, InterruptedException {
-        PlayerResponse player = playerService.getPlayerById(idPlayer);
-        if (player == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(player);
+        return ResponseEntity.ok(playerService.getPlayerById(idPlayer));
     }
 
     @Operation(summary = "Delete a player and all their Mechs")

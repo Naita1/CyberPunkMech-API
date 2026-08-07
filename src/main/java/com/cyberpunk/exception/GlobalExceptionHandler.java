@@ -1,5 +1,8 @@
 package com.cyberpunk.exception;
 
+import com.cyberpunk.exception.ErrorResponse;
+import com.cyberpunk.exception.MechNotFoundException;
+import com.cyberpunk.exception.PlayerNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,6 +16,22 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MechNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMechNotFound(MechNotFoundException e) {
+        log.warn("Mech não encontrado: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", e.getMessage())
+        );
+    }
+
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handlePlayerNotFound(PlayerNotFoundException e) {
+        log.warn("Player não encontrado: {}", e.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ErrorResponse(HttpStatus.NOT_FOUND.value(), "Not Found", e.getMessage())
+        );
+    }
 
     @ExceptionHandler(ExecutionException.class)
     public ResponseEntity<ErrorResponse> handleExecutionException(ExecutionException e) {

@@ -47,11 +47,7 @@ public class MechController {
     @ApiResponse(responseCode = "404", description = "Mech not found")
     @GetMapping("/{idMech}")
     public ResponseEntity<Mech> getMech(@PathVariable String idMech) throws ExecutionException, InterruptedException {
-        Mech mech = mechService.getMechById(idMech);
-        if (mech == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(mech);
+        return ResponseEntity.ok(mechService.getMechById(idMech));
     }
 
     @Operation(summary = "List all Mechs belonging to a player")

@@ -4,6 +4,7 @@ import com.cyberpunk.dto.AttackMechRequest;
 import com.cyberpunk.dto.AttackMechResponse;
 import com.cyberpunk.dto.DefensiveMechRequest;
 import com.cyberpunk.dto.DefensiveMechResponse;
+import com.cyberpunk.exception.MechNotFoundException;
 import com.cyberpunk.model.AttackMech;
 import com.cyberpunk.model.DefensiveMech;
 import com.cyberpunk.model.Mech;
@@ -72,15 +73,13 @@ class MechServiceTest {
     }
 
     @Test
-    void getMechById_whenNotFound_shouldReturnNull() throws Exception {
+    void getMechById_whenNotFound_shouldThrowMechNotFoundException() throws Exception {
         when(collectionReference.document(anyString())).thenReturn(documentReference);
         when(documentReference.get()).thenReturn(snapshotFuture);
         when(snapshotFuture.get()).thenReturn(documentSnapshot);
         when(documentSnapshot.exists()).thenReturn(false);
 
-        Mech result = mechService.getMechById("mech-inexistente");
-
-        assertNull(result);
+        assertThrows(MechNotFoundException.class, () -> mechService.getMechById("mech-inexistente"));
     }
 
     @Test

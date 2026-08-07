@@ -6,6 +6,7 @@ import com.cyberpunk.dto.DefensiveMechRequest;
 import com.cyberpunk.dto.DefensiveMechResponse;
 import com.cyberpunk.model.AttackMech;
 import com.cyberpunk.model.DefensiveMech;
+import com.cyberpunk.exception.MechNotFoundException;
 import com.cyberpunk.model.Mech;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -54,7 +55,7 @@ public class MechService {
         DocumentSnapshot snapshot = getCollection().document(idMech).get().get();
 
         if (!snapshot.exists()) {
-            return null;
+            throw new MechNotFoundException(idMech);
         }
 
         return convertToMech(snapshot);
@@ -75,6 +76,10 @@ public class MechService {
     }
 
     public void deleteMech(String idMech) throws ExecutionException, InterruptedException {
+        DocumentSnapshot snapshot = getCollection().document(idMech).get().get();
+        if (!snapshot.exists()) {
+            throw new MechNotFoundException(idMech);
+        }
         getCollection().document(idMech).delete().get();
     }
 

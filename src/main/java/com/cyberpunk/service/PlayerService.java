@@ -3,6 +3,7 @@ package com.cyberpunk.service;
 import java.util.List;
 import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
+import com.cyberpunk.exception.PlayerNotFoundException;
 import com.cyberpunk.model.Mech;
 import com.cyberpunk.model.Player;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -38,18 +39,20 @@ public class PlayerService {
         DocumentSnapshot snapshot = firestore.collection(COLLECTION_NAME).document(idPlayer).get().get();
 
         if (!snapshot.exists()) {
-            return null;
+            throw new PlayerNotFoundException(idPlayer);
         }
 
         Player player = snapshot.toObject(Player.class);
-        if (player != null) {
-            player.setGarage(mechService.getMechsByPlayerId(player.getIdPlayer()));
-        }
-
-        return player != null ? PlayerResponse.from(player) : null;
+        player.setGarage(mechService.getMechsByPlayerId(player.getIdPlayer()));
+        return PlayerResponse.from(player);
     }
 
     public void deletePlayer(String idPlayer) throws ExecutionException, InterruptedException {
+        DocumentSnapshot snapshot = firestore.collection(COLLECTION_NAME).document(idPlayer).get().get();
+        if (!snapshot.exists()) {
+            throw new PlayerNotFoundException(idPlayer);
+        }
+
         List<Mech> mechs = mechService.getMechsByPlayerId(idPlayer);
 
         WriteBatch batch = firestore.batch();

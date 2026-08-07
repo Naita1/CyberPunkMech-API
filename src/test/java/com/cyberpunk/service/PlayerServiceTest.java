@@ -1,5 +1,6 @@
 package com.cyberpunk.service;
 
+import com.cyberpunk.exception.PlayerNotFoundException;
 import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.model.Player;
@@ -65,14 +66,12 @@ class PlayerServiceTest {
     }
 
     @Test
-    void getPlayerById_whenNotFound_shouldReturnNull() throws Exception {
+    void getPlayerById_whenNotFound_shouldThrowPlayerNotFoundException() throws Exception {
         when(documentReference.get()).thenReturn(snapshotFuture);
         when(snapshotFuture.get()).thenReturn(documentSnapshot);
         when(documentSnapshot.exists()).thenReturn(false);
 
-        PlayerResponse result = playerService.getPlayerById("player-inexistente");
-
-        assertNull(result);
+        assertThrows(PlayerNotFoundException.class, () -> playerService.getPlayerById("player-inexistente"));
     }
 
     @Test
@@ -95,7 +94,19 @@ class PlayerServiceTest {
     }
 
     @Test
+    void deletePlayer_whenNotFound_shouldThrowPlayerNotFoundException() throws Exception {
+        when(documentReference.get()).thenReturn(snapshotFuture);
+        when(snapshotFuture.get()).thenReturn(documentSnapshot);
+        when(documentSnapshot.exists()).thenReturn(false);
+
+        assertThrows(PlayerNotFoundException.class, () -> playerService.deletePlayer("player-inexistente"));
+    }
+
+    @Test
     void deletePlayer_shouldDeleteAllMechsBeforePlayer() throws Exception {
+        when(documentReference.get()).thenReturn(snapshotFuture);
+        when(snapshotFuture.get()).thenReturn(documentSnapshot);
+        when(documentSnapshot.exists()).thenReturn(true);
         when(mechService.getMechsByPlayerId("player-01")).thenReturn(List.of());
         when(firestore.batch()).thenReturn(writeBatch);
         doReturn(batchFuture).when(writeBatch).commit();
