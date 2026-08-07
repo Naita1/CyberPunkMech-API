@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -61,10 +60,10 @@ public class MechService {
     }
 
     public void deleteMechsByPlayerId(String idPlayer) throws ExecutionException, InterruptedException {
-        List<String> idMechs = mechRepository.findByPlayerId(idPlayer)
-                .stream()
+        List<Mech> mechs = mechRepository.findByPlayerId(idPlayer);
+        List<String> idMechs = mechs.stream()
                 .map(Mech::getIdMech)
-                .collect(Collectors.toList());
+                .toList();
         mechRepository.deleteAllById(idMechs);
     }
 }

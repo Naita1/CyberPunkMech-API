@@ -4,6 +4,7 @@ import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.exception.PlayerNotFoundException;
 import com.cyberpunk.model.Player;
+import com.cyberpunk.repository.MechRepository;
 import com.cyberpunk.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,11 +14,11 @@ import java.util.concurrent.ExecutionException;
 public class PlayerService {
 
     private final PlayerRepository playerRepository;
-    private final MechService mechService;
+    private final MechRepository mechRepository;
 
-    public PlayerService(PlayerRepository playerRepository, MechService mechService) {
+    public PlayerService(PlayerRepository playerRepository, MechRepository mechRepository) {
         this.playerRepository = playerRepository;
-        this.mechService = mechService;
+        this.mechRepository = mechRepository;
     }
 
     public PlayerResponse savePlayer(PlayerRequest request) throws ExecutionException, InterruptedException {
@@ -34,7 +35,7 @@ public class PlayerService {
         Player player = playerRepository.findById(idPlayer)
                 .orElseThrow(() -> new PlayerNotFoundException(idPlayer));
 
-        player.setGarage(mechService.getMechsByPlayerId(player.getIdPlayer()));
+        player.setGarage(mechRepository.findByPlayerId(player.getIdPlayer()));
         return PlayerResponse.from(player);
     }
 
@@ -43,7 +44,10 @@ public class PlayerService {
             throw new PlayerNotFoundException(idPlayer);
         }
 
-        mechService.deleteMechsByPlayerId(idPlayer);
+        mechRepository.deleteAllById(mechRepository.findByPlayerId(idPlayer)
+                .stream()
+                .map(com.cyberpunk.model.Mech::getIdMech)
+                .toList());
         playerRepository.deleteById(idPlayer);
     }
 }

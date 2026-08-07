@@ -4,6 +4,7 @@ import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.exception.PlayerNotFoundException;
 import com.cyberpunk.model.Player;
+import com.cyberpunk.repository.MechRepository;
 import com.cyberpunk.repository.PlayerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,7 @@ class PlayerServiceTest {
     private PlayerRepository playerRepository;
 
     @Mock
-    private MechService mechService;
+    private MechRepository mechRepository;
 
     @InjectMocks
     private PlayerService playerService;
@@ -64,13 +65,13 @@ class PlayerServiceTest {
         player.setNamePlayer("CyberSamurai");
 
         when(playerRepository.findById("player-01")).thenReturn(Optional.of(player));
-        when(mechService.getMechsByPlayerId("player-01")).thenReturn(List.of());
+        when(mechRepository.findByPlayerId("player-01")).thenReturn(List.of());
 
         PlayerResponse result = playerService.getPlayerById("player-01");
 
         assertNotNull(result);
         assertEquals("player-01", result.idPlayer());
-        verify(mechService).getMechsByPlayerId("player-01");
+        verify(mechRepository).findByPlayerId("player-01");
     }
 
     @Test
@@ -83,10 +84,12 @@ class PlayerServiceTest {
     @Test
     void deletePlayer_shouldDeleteMechsThenPlayer() throws Exception {
         when(playerRepository.existsById("player-01")).thenReturn(true);
+        when(mechRepository.findByPlayerId("player-01")).thenReturn(List.of());
 
         playerService.deletePlayer("player-01");
 
-        verify(mechService).deleteMechsByPlayerId("player-01");
+        verify(mechRepository).findByPlayerId("player-01");
+        verify(mechRepository).deleteAllById(List.of());
         verify(playerRepository).deleteById("player-01");
     }
 }
