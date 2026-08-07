@@ -4,33 +4,26 @@ import com.cyberpunk.dto.AttackMechRequest;
 import com.cyberpunk.dto.AttackMechResponse;
 import com.cyberpunk.dto.DefensiveMechRequest;
 import com.cyberpunk.dto.DefensiveMechResponse;
+import com.cyberpunk.exception.MechNotFoundException;
 import com.cyberpunk.model.AttackMech;
 import com.cyberpunk.model.DefensiveMech;
-import com.cyberpunk.exception.MechNotFoundException;
 import com.cyberpunk.model.Mech;
-import com.google.cloud.firestore.CollectionReference;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.QueryDocumentSnapshot;
+import com.cyberpunk.repository.MechRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class MechService {
-    private static final String COLLECTION_NAME = "mechs";
-    private final Firestore firestore;
 
-    public MechService(Firestore firestore) {
-        this.firestore = firestore;
-    }
+    private final MechRepository mechRepository;
 
-    private CollectionReference getCollection() {
-        return firestore.collection(COLLECTION_NAME);
+    public MechService(MechRepository mechRepository) {
+        this.mechRepository = mechRepository;
     }
 
     public AttackMechResponse saveAttackMech(AttackMechRequest request) throws ExecutionException, InterruptedException {
@@ -38,7 +31,7 @@ public class MechService {
                 request.idMech(), request.playerId(), request.model(),
                 request.maxHealth(), request.battery(), request.attackPower(), request.maxHeat()
         );
-        getCollection().document(mech.getIdMech()).set(mech).get();
+        mechRepository.save(mech);
         return AttackMechResponse.from(mech);
     }
 
@@ -47,58 +40,31 @@ public class MechService {
                 request.idMech(), request.playerId(), request.model(),
                 request.maxHealth(), request.battery(), request.attackPower(), request.shieldArmor()
         );
-        getCollection().document(mech.getIdMech()).set(mech).get();
+        mechRepository.save(mech);
         return DefensiveMechResponse.from(mech);
     }
 
     public Mech getMechById(String idMech) throws ExecutionException, InterruptedException {
-        DocumentSnapshot snapshot = getCollection().document(idMech).get().get();
-
-        if (!snapshot.exists()) {
-            throw new MechNotFoundException(idMech);
-        }
-
-        return convertToMech(snapshot);
+        return mechRepository.findById(idMech)
+                .orElseThrow(() -> new MechNotFoundException(idMech));
     }
 
     public List<Mech> getMechsByPlayerId(String idPlayer) throws ExecutionException, InterruptedException {
-        List<Mech> mechs = new ArrayList<>();
-        List<QueryDocumentSnapshot> docs = getCollection()
-                .whereEqualTo("playerId", idPlayer)
-                .get()
-                .get()
-                .getDocuments();
-
-        for(QueryDocumentSnapshot doc : docs) {
-            mechs.add(convertToMech(doc));
-        }
-        return mechs;
+        return mechRepository.findByPlayerId(idPlayer);
     }
 
     public void deleteMech(String idMech) throws ExecutionException, InterruptedException {
-        DocumentSnapshot snapshot = getCollection().document(idMech).get().get();
-        if (!snapshot.exists()) {
+        if (!mechRepository.existsById(idMech)) {
             throw new MechNotFoundException(idMech);
         }
-        getCollection().document(idMech).delete().get();
+        mechRepository.deleteById(idMech);
     }
 
-    private Mech convertToMech(DocumentSnapshot snapshot) {
-        String type = snapshot.getString("type");
-
-        if (type == null) {
-            throw new IllegalArgumentException("Documento sem campo 'model': " + snapshot.getId());
-        }
-
-        switch (type) {
-            case "ATTACK":
-                return snapshot.toObject(AttackMech.class);
-            case "DEFENSIVE":
-                return snapshot.toObject(DefensiveMech.class);
-            default:
-                throw new IllegalArgumentException("Tipo de Mech desconhecido: " + snapshot.getId());
-        }
+    public void deleteMechsByPlayerId(String idPlayer) throws ExecutionException, InterruptedException {
+        List<String> idMechs = mechRepository.findByPlayerId(idPlayer)
+                .stream()
+                .map(Mech::getIdMech)
+                .collect(Collectors.toList());
+        mechRepository.deleteAllById(idMechs);
     }
-
 }
-

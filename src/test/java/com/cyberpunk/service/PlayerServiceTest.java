@@ -1,12 +1,10 @@
 package com.cyberpunk.service;
 
-import com.cyberpunk.exception.PlayerNotFoundException;
 import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
+import com.cyberpunk.exception.PlayerNotFoundException;
 import com.cyberpunk.model.Player;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.*;
-import org.junit.jupiter.api.BeforeEach;
+import com.cyberpunk.repository.PlayerRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,52 +12,39 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerServiceTest {
 
-    @Mock private Firestore firestore;
-    @Mock private MechService mechService;
-    @Mock private CollectionReference collectionReference;
-    @Mock private DocumentReference documentReference;
-    @Mock private WriteBatch writeBatch;
-    @Mock private ApiFuture<WriteResult> writeResultFuture;
-    @Mock private ApiFuture<DocumentSnapshot> snapshotFuture;
-    @Mock private ApiFuture<List<WriteResult>> batchFuture;
-    @Mock private DocumentSnapshot documentSnapshot;
+    @Mock
+    private PlayerRepository playerRepository;
+
+    @Mock
+    private MechService mechService;
 
     @InjectMocks
     private PlayerService playerService;
 
-    @BeforeEach
-    void setUp() {
-        when(firestore.collection(anyString())).thenReturn(collectionReference);
-        when(collectionReference.document(anyString())).thenReturn(documentReference);
-    }
-
     @Test
     void savePlayer_shouldReturnCorrectResponse() throws Exception {
-        doReturn(writeResultFuture).when(documentReference).set(any(Player.class));
-        when(writeResultFuture.get()).thenReturn(mock(WriteResult.class));
-
         PlayerRequest request = new PlayerRequest("player-01", "CyberSamurai", 500);
+
         PlayerResponse response = playerService.savePlayer(request);
 
         assertEquals("player-01", response.idPlayer());
         assertEquals("CyberSamurai", response.namePlayer());
         assertEquals(500, response.coins());
+        verify(playerRepository).save(any(Player.class));
     }
 
     @Test
     void savePlayer_withNullCoins_shouldUseDefaultCoins() throws Exception {
-        doReturn(writeResultFuture).when(documentReference).set(any(Player.class));
-        when(writeResultFuture.get()).thenReturn(mock(WriteResult.class));
-
         PlayerRequest request = new PlayerRequest("player-01", "CyberSamurai", null);
+
         PlayerResponse response = playerService.savePlayer(request);
 
         assertEquals(50, response.coins());
@@ -67,9 +52,7 @@ class PlayerServiceTest {
 
     @Test
     void getPlayerById_whenNotFound_shouldThrowPlayerNotFoundException() throws Exception {
-        when(documentReference.get()).thenReturn(snapshotFuture);
-        when(snapshotFuture.get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(false);
+        when(playerRepository.findById("player-inexistente")).thenReturn(Optional.empty());
 
         assertThrows(PlayerNotFoundException.class, () -> playerService.getPlayerById("player-inexistente"));
     }
@@ -80,10 +63,7 @@ class PlayerServiceTest {
         player.setIdPlayer("player-01");
         player.setNamePlayer("CyberSamurai");
 
-        when(documentReference.get()).thenReturn(snapshotFuture);
-        when(snapshotFuture.get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(true);
-        when(documentSnapshot.toObject(Player.class)).thenReturn(player);
+        when(playerRepository.findById("player-01")).thenReturn(Optional.of(player));
         when(mechService.getMechsByPlayerId("player-01")).thenReturn(List.of());
 
         PlayerResponse result = playerService.getPlayerById("player-01");
@@ -95,26 +75,18 @@ class PlayerServiceTest {
 
     @Test
     void deletePlayer_whenNotFound_shouldThrowPlayerNotFoundException() throws Exception {
-        when(documentReference.get()).thenReturn(snapshotFuture);
-        when(snapshotFuture.get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(false);
+        when(playerRepository.existsById("player-inexistente")).thenReturn(false);
 
         assertThrows(PlayerNotFoundException.class, () -> playerService.deletePlayer("player-inexistente"));
     }
 
     @Test
-    void deletePlayer_shouldDeleteAllMechsBeforePlayer() throws Exception {
-        when(documentReference.get()).thenReturn(snapshotFuture);
-        when(snapshotFuture.get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(true);
-        when(mechService.getMechsByPlayerId("player-01")).thenReturn(List.of());
-        when(firestore.batch()).thenReturn(writeBatch);
-        doReturn(batchFuture).when(writeBatch).commit();
-        when(batchFuture.get()).thenReturn(List.of());
+    void deletePlayer_shouldDeleteMechsThenPlayer() throws Exception {
+        when(playerRepository.existsById("player-01")).thenReturn(true);
 
         playerService.deletePlayer("player-01");
 
-        verify(mechService).getMechsByPlayerId("player-01");
-        verify(writeBatch).commit();
+        verify(mechService).deleteMechsByPlayerId("player-01");
+        verify(playerRepository).deleteById("player-01");
     }
 }

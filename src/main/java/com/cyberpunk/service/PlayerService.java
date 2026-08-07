@@ -1,14 +1,10 @@
 package com.cyberpunk.service;
 
-import java.util.List;
 import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.exception.PlayerNotFoundException;
-import com.cyberpunk.model.Mech;
 import com.cyberpunk.model.Player;
-import com.google.cloud.firestore.DocumentSnapshot;
-import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.WriteBatch;
+import com.cyberpunk.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
@@ -16,12 +12,11 @@ import java.util.concurrent.ExecutionException;
 @Service
 public class PlayerService {
 
-    private static final String COLLECTION_NAME = "players";
-    private final Firestore firestore;
+    private final PlayerRepository playerRepository;
     private final MechService mechService;
 
-    public PlayerService(Firestore firestore, MechService mechService) {
-        this.firestore = firestore;
+    public PlayerService(PlayerRepository playerRepository, MechService mechService) {
+        this.playerRepository = playerRepository;
         this.mechService = mechService;
     }
 
@@ -31,35 +26,24 @@ public class PlayerService {
         player.setNamePlayer(request.namePlayer());
         if (request.coins() != null) player.setCoins(request.coins());
 
-        firestore.collection(COLLECTION_NAME).document(player.getIdPlayer()).set(player).get();
+        playerRepository.save(player);
         return PlayerResponse.from(player);
     }
 
     public PlayerResponse getPlayerById(String idPlayer) throws ExecutionException, InterruptedException {
-        DocumentSnapshot snapshot = firestore.collection(COLLECTION_NAME).document(idPlayer).get().get();
+        Player player = playerRepository.findById(idPlayer)
+                .orElseThrow(() -> new PlayerNotFoundException(idPlayer));
 
-        if (!snapshot.exists()) {
-            throw new PlayerNotFoundException(idPlayer);
-        }
-
-        Player player = snapshot.toObject(Player.class);
         player.setGarage(mechService.getMechsByPlayerId(player.getIdPlayer()));
         return PlayerResponse.from(player);
     }
 
     public void deletePlayer(String idPlayer) throws ExecutionException, InterruptedException {
-        DocumentSnapshot snapshot = firestore.collection(COLLECTION_NAME).document(idPlayer).get().get();
-        if (!snapshot.exists()) {
+        if (!playerRepository.existsById(idPlayer)) {
             throw new PlayerNotFoundException(idPlayer);
         }
 
-        List<Mech> mechs = mechService.getMechsByPlayerId(idPlayer);
-
-        WriteBatch batch = firestore.batch();
-        mechs.forEach(mech -> batch.delete(firestore.collection("mechs").document(mech.getIdMech())));
-        batch.delete(firestore.collection(COLLECTION_NAME).document(idPlayer));
-        batch.commit().get();
+        mechService.deleteMechsByPlayerId(idPlayer);
+        playerRepository.deleteById(idPlayer);
     }
-
-
 }

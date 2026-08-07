@@ -8,9 +8,7 @@ import com.cyberpunk.exception.MechNotFoundException;
 import com.cyberpunk.model.AttackMech;
 import com.cyberpunk.model.DefensiveMech;
 import com.cyberpunk.model.Mech;
-import com.google.api.core.ApiFuture;
-import com.google.cloud.firestore.*;
-import org.junit.jupiter.api.BeforeEach;
+import com.cyberpunk.repository.MechRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -26,28 +25,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MechServiceTest {
 
-    @Mock private Firestore firestore;
-    @Mock private CollectionReference collectionReference;
-    @Mock private DocumentReference documentReference;
-    @Mock private ApiFuture<WriteResult> writeResultFuture;
-    @Mock private ApiFuture<DocumentSnapshot> snapshotFuture;
-    @Mock private DocumentSnapshot documentSnapshot;
+    @Mock
+    private MechRepository mechRepository;
 
     @InjectMocks
     private MechService mechService;
 
-    @BeforeEach
-    void setUp() {
-        when(firestore.collection(anyString())).thenReturn(collectionReference);
-    }
-
     @Test
     void saveAttackMech_shouldReturnCorrectResponse() throws Exception {
-        when(collectionReference.document(anyString())).thenReturn(documentReference);
-        doReturn(writeResultFuture).when(documentReference).set(any(AttackMech.class));
-        when(writeResultFuture.get()).thenReturn(mock(WriteResult.class));
-
         AttackMechRequest request = new AttackMechRequest("mech-01", "player-01", "Viper-X", 100, 80, 20, 100);
+
         AttackMechResponse response = mechService.saveAttackMech(request);
 
         assertEquals("mech-01", response.idMech());
@@ -55,29 +42,25 @@ class MechServiceTest {
         assertEquals("ATTACK", response.type());
         assertEquals(100, response.currentHealth());
         assertEquals(0, response.heatLevel());
+        verify(mechRepository).save(any(AttackMech.class));
     }
 
     @Test
     void saveDefensiveMech_shouldReturnCorrectResponse() throws Exception {
-        when(collectionReference.document(anyString())).thenReturn(documentReference);
-        doReturn(writeResultFuture).when(documentReference).set(any(DefensiveMech.class));
-        when(writeResultFuture.get()).thenReturn(mock(WriteResult.class));
-
         DefensiveMechRequest request = new DefensiveMechRequest("mech-02", "player-01", "Aegis", 150, 70, 10, 50);
+
         DefensiveMechResponse response = mechService.saveDefensiveMech(request);
 
         assertEquals("mech-02", response.idMech());
         assertEquals("DEFENSIVE", response.type());
         assertEquals(50, response.shieldArmor());
         assertFalse(response.shieldActive());
+        verify(mechRepository).save(any(DefensiveMech.class));
     }
 
     @Test
     void getMechById_whenNotFound_shouldThrowMechNotFoundException() throws Exception {
-        when(collectionReference.document(anyString())).thenReturn(documentReference);
-        when(documentReference.get()).thenReturn(snapshotFuture);
-        when(snapshotFuture.get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(false);
+        when(mechRepository.findById("mech-inexistente")).thenReturn(Optional.empty());
 
         assertThrows(MechNotFoundException.class, () -> mechService.getMechById("mech-inexistente"));
     }
@@ -85,13 +68,7 @@ class MechServiceTest {
     @Test
     void getMechById_whenFound_shouldReturnAttackMech() throws Exception {
         AttackMech attackMech = new AttackMech("mech-01", "player-01", "Viper-X", 100, 80, 20, 100);
-
-        when(collectionReference.document(anyString())).thenReturn(documentReference);
-        when(documentReference.get()).thenReturn(snapshotFuture);
-        when(snapshotFuture.get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(true);
-        when(documentSnapshot.getString("type")).thenReturn("ATTACK");
-        when(documentSnapshot.toObject(AttackMech.class)).thenReturn(attackMech);
+        when(mechRepository.findById("mech-01")).thenReturn(Optional.of(attackMech));
 
         Mech result = mechService.getMechById("mech-01");
 
@@ -101,14 +78,7 @@ class MechServiceTest {
 
     @Test
     void getMechsByPlayerId_shouldReturnEmptyList() throws Exception {
-        ApiFuture<QuerySnapshot> queryFuture = mock(ApiFuture.class);
-        QuerySnapshot querySnapshot = mock(QuerySnapshot.class);
-        Query query = mock(Query.class);
-
-        when(collectionReference.whereEqualTo(anyString(), anyString())).thenReturn(query);
-        when(query.get()).thenReturn(queryFuture);
-        when(queryFuture.get()).thenReturn(querySnapshot);
-        when(querySnapshot.getDocuments()).thenReturn(List.of());
+        when(mechRepository.findByPlayerId("player-sem-mechs")).thenReturn(List.of());
 
         List<Mech> result = mechService.getMechsByPlayerId("player-sem-mechs");
 
@@ -117,14 +87,19 @@ class MechServiceTest {
     }
 
     @Test
-    void getMechById_withUnknownType_shouldThrowIllegalArgumentException() throws Exception {
-        when(collectionReference.document(anyString())).thenReturn(documentReference);
-        when(documentReference.get()).thenReturn(snapshotFuture);
-        when(snapshotFuture.get()).thenReturn(documentSnapshot);
-        when(documentSnapshot.exists()).thenReturn(true);
-        when(documentSnapshot.getString("type")).thenReturn("UNKNOWN");
-        when(documentSnapshot.getId()).thenReturn("mech-invalido");
+    void deleteMech_whenNotFound_shouldThrowMechNotFoundException() throws Exception {
+        when(mechRepository.existsById("mech-inexistente")).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> mechService.getMechById("mech-invalido"));
+        assertThrows(MechNotFoundException.class, () -> mechService.deleteMech("mech-inexistente"));
+        verify(mechRepository, never()).deleteById(anyString());
+    }
+
+    @Test
+    void deleteMech_whenFound_shouldDelete() throws Exception {
+        when(mechRepository.existsById("mech-01")).thenReturn(true);
+
+        mechService.deleteMech("mech-01");
+
+        verify(mechRepository).deleteById("mech-01");
     }
 }
