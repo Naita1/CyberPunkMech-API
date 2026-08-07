@@ -4,6 +4,7 @@ import com.cyberpunk.model.Player;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
 import com.google.cloud.firestore.Firestore;
+import com.google.cloud.firestore.QuerySnapshot;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -35,6 +36,20 @@ public class FirestorePlayerRepository implements PlayerRepository {
             return Optional.empty();
         }
         return Optional.ofNullable(snapshot.toObject(Player.class));
+    }
+
+    @Override
+    public Optional<Player> findByName(String namePlayer) throws ExecutionException, InterruptedException {
+        QuerySnapshot snapshot = getCollection()
+                .whereEqualTo("namePlayer", namePlayer)
+                .limit(1)
+                .get()
+                .get();
+
+        if (snapshot.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(snapshot.getDocuments().get(0).toObject(Player.class));
     }
 
     @Override

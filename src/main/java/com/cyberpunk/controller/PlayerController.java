@@ -1,5 +1,6 @@
 package com.cyberpunk.controller;
 
+import com.cyberpunk.dto.PlayerLoginRequest;
 import com.cyberpunk.dto.PlayerRequest;
 import com.cyberpunk.dto.PlayerResponse;
 import com.cyberpunk.service.PlayerService;
@@ -29,6 +30,14 @@ public class PlayerController {
     @PostMapping
     public ResponseEntity<PlayerResponse> createPlayer(@Valid @RequestBody PlayerRequest request) throws ExecutionException, InterruptedException {
         return ResponseEntity.status(HttpStatus.CREATED).body(playerService.savePlayer(request));
+    }
+
+    @Operation(summary = "Login with player credentials")
+    @ApiResponse(responseCode = "200", description = "Login successful")
+    @ApiResponse(responseCode = "401", description = "Invalid credentials")
+    @PostMapping("/login")
+    public ResponseEntity<PlayerResponse> login(@Valid @RequestBody PlayerLoginRequest request) throws ExecutionException, InterruptedException {
+        return ResponseEntity.ok(playerService.login(request));
     }
 
     @Operation(summary = "Get a player by ID with their Mech garage")

@@ -5,9 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record DefensiveMechRequest(
-        @NotBlank(message = "O ID do mech é obrigatório")
-        String idMech,
-
         @NotBlank(message = "O ID do jogador é obrigatório")
         String playerId,
 

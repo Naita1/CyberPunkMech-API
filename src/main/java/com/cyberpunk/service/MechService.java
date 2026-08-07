@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Slf4j
@@ -27,7 +28,7 @@ public class MechService {
 
     public AttackMechResponse saveAttackMech(AttackMechRequest request) throws ExecutionException, InterruptedException {
         AttackMech mech = new AttackMech(
-                request.idMech(), request.playerId(), request.model(),
+                UUID.randomUUID().toString(), request.playerId(), request.model(),
                 request.maxHealth(), request.battery(), request.attackPower(), request.maxHeat()
         );
         mechRepository.save(mech);
@@ -36,7 +37,7 @@ public class MechService {
 
     public DefensiveMechResponse saveDefensiveMech(DefensiveMechRequest request) throws ExecutionException, InterruptedException {
         DefensiveMech mech = new DefensiveMech(
-                request.idMech(), request.playerId(), request.model(),
+                UUID.randomUUID().toString(), request.playerId(), request.model(),
                 request.maxHealth(), request.battery(), request.attackPower(), request.shieldArmor()
         );
         mechRepository.save(mech);
